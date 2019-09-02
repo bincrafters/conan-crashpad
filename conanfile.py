@@ -13,7 +13,11 @@ class CrashpadConan(ConanFile):
     url = "https://chromium.googlesource.com/crashpad/crashpad"
     description = "Crashpad is a crash-reporting system."
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
+
+    _scratch_dir = "srcbuild-%s" % version
+    _source_dir = os.path.join(_scratch_dir, "crashpad")
+    _build_name = "out/Conan"
+    _build_dir = os.path.join(_source_dir, _build_name)
 
     def _depot_tools(self):
         return os.path.join(self.source_folder, "depot_tools")
@@ -25,19 +29,41 @@ class CrashpadConan(ConanFile):
         return os.path.join(self._crashpad_source_base(), "crashpad")
 
     def build_requirements(self):
-        self.build_requires("depot_tools_installer/master@bincrafters/stable")
+        self.build_requires("depot_tools_installer/master@nexenio/testing")
+        self.build_requires("ninja_installer/1.9.0@bincrafters/stable")
 
     def source(self):
-        self.run("fetch crashpad", run_environment=True)
+        tools.mkdir(self._scratch_dir)
+        with tools.chdir(self._scratch_dir):
+            self.run("fetch crashpad")
 
     def build(self):
-        with tools.environment_append({"PATH": [ self._depot_tools() ]}), tools.chdir(self._crashpad_source()):
-            self.run("gn gen out/%s" % self.settings.build_type)
-            self.run("ninja -C out/%s -j %s" % (self.settings.build_type, tools.cpu_count()))
+        with tools.chdir(self._source_dir):
+            self.run("gn gen %s" % self._build_name)
+            self.run("ninja -j%d -C %s" % (tools.cpu_count(), self._build_name))
+
+    def _copy_lib(self, src_dir):
+        self.copy("*.a", dst="lib", 
+                  src=os.path.join(self._build_dir, src_dir), keep_path=False)
+        self.copy("*.lib", dst="lib", 
+                  src=os.path.join(self._build_dir, src_dir), keep_path=False)
+        
+    def _copy_headers(self, dst_dir, src_dir):
+        self.copy("*.h", dst=os.path.join("include", dst_dir), 
+                         src=os.path.join(self._source_dir, src_dir))
 
     def package(self):
-        pass
+        self.copy("LICENSE", dst="licenses", src=self._source_dir, 
+                             ignore_case=True, keep_path=False)
+
+        self._copy_headers("crashpad/client", "client")
+        self._copy_headers("crashpad/util",   "util")
+        self._copy_headers("mini_chromium",   "third_party/mini_chromium/mini_chromium")
+        self._copy_lib("obj/client")
+        self._copy_lib("obj/util")
+        self._copy_lib("obj/third_party/mini_chromium")
 
     def package_info(self):
-        self.cpp_info.libs = ["hello"]
-
+        self.cpp_info.includedirs = [ "include/crashpad", "include/mini_chromium" ]
+        self.cpp_info.libdirs = [ "lib" ]
+        self.cpp_info.libs = tools.collect_libs(self)
