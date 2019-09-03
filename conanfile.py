@@ -37,9 +37,19 @@ class CrashpadConan(ConanFile):
         with tools.chdir(self._scratch_dir):
             self.run("fetch crashpad")
 
+    def _setup_args_gn(self):
+        debug_mode = (self.settings.build_type == "Debug" or
+                      self.settings.build_type == "RelWithDebInfo")
+        with open(os.path.join(self._build_name, "args.gn"), "w") as args_gn:
+            args_gn.write("is_debug = %s\n" % ("true" if debug_mode else "false"))
+
+            if self.settings.os == "Macos" and self.settings.get_safe("os.version"):
+                args_gn.write("mac_deployment_target =\"%s\"\n" % self.settings.os.version)
+
     def build(self):
         with tools.chdir(self._source_dir):
             self.run("gn gen %s" % self._build_name)
+            self._setup_args_gn()
             self.run("ninja -j%d -C %s" % (tools.cpu_count(), self._build_name))
 
     def _copy_lib(self, src_dir):
