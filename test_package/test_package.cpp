@@ -2,6 +2,10 @@
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+#include <cwchar>
+#endif
+
 #include "client/crashpad_client.h"
 #include "client/settings.h"
 
@@ -29,8 +33,16 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
-    base::FilePath db(argv[1]);
+#ifdef _WIN32
+    wchar_t ws[1024];
+    swprintf(ws, 1024, L"%hs", argv[1]);
+    base::FilePath db(ws);
+    swprintf(ws, 1024, L"%hs", argv[2]);
+    base::FilePath handler(ws);
+#else
+    base::FilePath db(std::argv[1]);
     base::FilePath handler(argv[2]);
+#endif
 
     return startCrashpad(db, handler) ? 0 : 1;
 }
