@@ -1,4 +1,4 @@
-from conans import ConanFile, CMake, tools
+from conans import ConanFile, tools
 import os
 
 class CrashpadConan(ConanFile):
@@ -67,3 +67,12 @@ class CrashpadConan(ConanFile):
         self.cpp_info.includedirs = [ "include/crashpad", "include/mini_chromium" ]
         self.cpp_info.libdirs = [ "lib" ]
         self.cpp_info.libs = tools.collect_libs(self)
+
+        if self.settings.os == "Macos":
+            self.cpp_info.exelinkflags.append("-framework CoreFoundation")
+            self.cpp_info.exelinkflags.append("-framework CoreGraphics")
+            self.cpp_info.exelinkflags.append("-framework CoreText")
+            self.cpp_info.exelinkflags.append("-framework Security")
+            self.cpp_info.exelinkflags.append("-framework IOKit")
+            self.cpp_info.exelinkflags.append("-lbsm")
+            self.cpp_info.sharedlinkflags = self.cpp_info.exelinkflags
