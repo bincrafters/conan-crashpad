@@ -62,6 +62,9 @@ class CrashpadConan(ConanFile):
         self.copy("*.h", dst=os.path.join("include", dst_dir), 
                          src=os.path.join(self._source_dir, src_dir))
 
+    def _copy_bin(self, src_bin):
+        self.copy(src_bin, src=self._build_dir, dst="bin")
+
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_dir, 
                              ignore_case=True, keep_path=False)
@@ -72,6 +75,7 @@ class CrashpadConan(ConanFile):
         self._copy_lib("obj/client")
         self._copy_lib("obj/util")
         self._copy_lib("obj/third_party/mini_chromium")
+        self._copy_bin("crashpad_handler")
 
     def package_info(self):
         self.cpp_info.includedirs = [ "include/crashpad", "include/mini_chromium" ]
