@@ -67,6 +67,7 @@ class CrashpadConan(ConanFile):
 
     def _copy_bin(self, src_bin):
         self.copy(src_bin, src=self._build_dir, dst="bin")
+        self.copy("%s.exe" % src_bin, src=self._build_dir, dst="bin")
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_dir, 
