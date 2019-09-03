@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     swprintf(ws, 1024, L"%hs", argv[2]);
     base::FilePath handler(ws);
 #else
-    base::FilePath db(std::argv[1]);
+    base::FilePath db(argv[1]);
     base::FilePath handler(argv[2]);
 #endif
 
