@@ -38,8 +38,7 @@ class CrashpadConan(ConanFile):
             self.run("fetch crashpad")
 
     def _setup_args_gn(self):
-        debug_mode = (self.settings.build_type == "Debug" or
-                      self.settings.build_type == "RelWithDebInfo")
+        debug_mode = self.settings.build_type == "Debug"
         with open(os.path.join(self._build_name, "args.gn"), "w") as args_gn:
             args_gn.write("is_debug = %s\n" % ("true" if debug_mode else "false"))
 
