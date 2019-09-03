@@ -13,6 +13,8 @@ class CrashpadConan(ConanFile):
     url = "https://chromium.googlesource.com/crashpad/crashpad"
     description = "Crashpad is a crash-reporting system."
     settings = "os", "compiler", "build_type", "arch"
+    exports = "patches/*"
+    short_paths = True
 
     _scratch_dir = "srcbuild-%s" % version
     _source_dir = os.path.join(_scratch_dir, "crashpad")
@@ -36,6 +38,8 @@ class CrashpadConan(ConanFile):
         tools.mkdir(self._scratch_dir)
         with tools.chdir(self._scratch_dir):
             self.run("fetch crashpad")
+        tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
+                    patch_file="patches/dynamic_crt.patch")
 
     def _setup_args_gn(self):
         debug_mode = self.settings.build_type == "Debug"
