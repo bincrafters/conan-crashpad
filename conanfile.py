@@ -17,8 +17,7 @@ class CrashpadConan(ConanFile):
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
 
-    _scratch_dir = "srcbuild-%s" % version
-    _source_dir = os.path.join(_scratch_dir, "crashpad")
+    _source_dir = "crashpad"
     _build_name = "out/Conan"
     _build_dir = os.path.join(_source_dir, _build_name)
 
@@ -35,10 +34,19 @@ class CrashpadConan(ConanFile):
         self.build_requires("depot_tools_installer/master@nexenio/testing")
         self.build_requires("ninja_installer/1.9.0@bincrafters/stable")
 
+    def _make_spec(self):
+        return """solutions = [
+                 {
+                   "url": "%s@%s",
+                   "managed": False,
+                   "name": "%s",
+                 },
+               ]
+               """ % (self.homepage, self.commit_id, self.name)
+
     def source(self):
-        tools.mkdir(self._scratch_dir)
-        with tools.chdir(self._scratch_dir):
-            self.run("fetch crashpad")
+        self.run("gclient config --spec '%s'" % self._make_spec())
+        self.run("gclient sync --no-history")
         tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
                     patch_file="patches/dynamic_crt.patch")
 
