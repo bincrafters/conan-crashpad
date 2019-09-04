@@ -47,8 +47,9 @@ class CrashpadConan(ConanFile):
             args += [ "is_debug=true" ]
         if self.settings.os == "Macos" and self.settings.get_safe("os.version"):
             args += [ "mac_deployment_target=\\\"%s\\\"" % self.settings.os.version ]
-        if self.settings.os == "Windows":
-            args += [ "dynamic_crt=true" ]
+        if self.settings.os == "Windows" and self.settings.get_safe("compiler.runtime"):
+            crt = str(self.settings.compiler.runtime)
+            args += [ "dynamic_crt=%s" % ("true" if crt.startswith("MD") else "false") ]
         return " ".join(args)
 
     def build(self):
