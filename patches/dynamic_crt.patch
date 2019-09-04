@@ -1,5 +1,5 @@
 diff --git a/build/BUILD.gn b/build/BUILD.gn
-index ca3bba3..f5fb2b5 100644
+index f3fff89..69c2003 100644
 --- a/build/BUILD.gn
 +++ b/build/BUILD.gn
 @@ -37,10 +37,20 @@ if (mini_chromium_is_mac) {
@@ -11,7 +11,7 @@ index ca3bba3..f5fb2b5 100644
 +    dynamic_crt = false
    }
  }
-
+ 
  config("debug") {
 +  if (mini_chromium_is_win) {
 +    if (dynamic_crt) {
@@ -21,7 +21,7 @@ index ca3bba3..f5fb2b5 100644
 +    }
 +  }
  }
-
+ 
  config("release") {
 @@ -75,6 +85,12 @@ config("release") {
        "/LTCG",
