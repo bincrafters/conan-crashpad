@@ -1,5 +1,6 @@
 from conans import ConanFile, tools
 import os
+import json
 
 class CrashpadConan(ConanFile):
     name = "crashpad"
@@ -12,7 +13,7 @@ class CrashpadConan(ConanFile):
     commit_id = "ee1d5124a2bfec578a1474b048cf934d92dcf7ba"
     version = commit_id[:7]
 
-    author = "René Meusel <rene.meusel@nexenio.com>"
+    author = "Rene Meusel <rene.meusel@nexenio.com>"
     settings = "os", "compiler", "build_type", "arch"
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
@@ -35,10 +36,10 @@ class CrashpadConan(ConanFile):
         self.build_requires("ninja_installer/1.9.0@bincrafters/stable")
 
     def _mangle_spec_for_gclient(self, solutions):
-        return json.dumps(solutions)
-                .replace("\"", "\\\"")
-                .replace("false", "False")
-                .replace("true", "True")
+        return json.dumps(solutions)          \
+                   .replace("\"", "\\\"")     \
+                   .replace("false", "False") \
+                   .replace("true", "True")
 
     def _make_spec(self):
         solutions = [{
