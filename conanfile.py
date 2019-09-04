@@ -34,18 +34,22 @@ class CrashpadConan(ConanFile):
         self.build_requires("depot_tools_installer/master@nexenio/testing")
         self.build_requires("ninja_installer/1.9.0@bincrafters/stable")
 
+    def _mangle_spec_for_gclient(self, solutions):
+        return json.dumps(solutions)
+                .replace("\"", "\\\"")
+                .replace("false", "False")
+                .replace("true", "True")
+
     def _make_spec(self):
-        return """solutions = [
-                 {
-                   "url": "%s@%s",
-                   "managed": False,
-                   "name": "%s",
-                 },
-               ]
-               """ % (self.homepage, self.commit_id, self.name)
+        solutions = [{
+            "url": "%s@%s" % (self.homepage, self.commit_id),
+            "managed": False,
+            "name": "%s" % (self.name),
+        }]
+        return "solutions=%s" % self._mangle_spec_for_gclient(solutions)
 
     def source(self):
-        self.run("gclient config --spec '%s'" % self._make_spec())
+        self.run("gclient config --spec=\"%s\"" % self._make_spec())
         self.run("gclient sync --no-history")
         tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
                     patch_file="patches/dynamic_crt.patch")
