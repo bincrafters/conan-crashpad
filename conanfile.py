@@ -3,17 +3,18 @@ import os
 
 class CrashpadConan(ConanFile):
     name = "crashpad"
+    license = "Apache-2.0"
+    homepage = "https://chromium.googlesource.com/crashpad/crashpad"
+    description = "Crashpad is a crash-reporting system."
 
     # crashpad does not have tagged releases, instead we track commit ids that
     # show up in official builds of Chromium every now and then...
     commit_id = "ee1d5124a2bfec578a1474b048cf934d92dcf7ba"
     version = commit_id[:7]
 
-    license = "Apache License 2.0"
-    url = "https://chromium.googlesource.com/crashpad/crashpad"
-    description = "Crashpad is a crash-reporting system."
+    author = "René Meusel <rene.meusel@nexenio.com>"
     settings = "os", "compiler", "build_type", "arch"
-    exports = "patches/*"
+    exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
 
     _scratch_dir = "srcbuild-%s" % version
