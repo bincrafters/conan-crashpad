@@ -11,7 +11,7 @@ class CrashpadConan(ConanFile):
     # crashpad does not have tagged releases, instead we track commit ids that
     # show up in official builds of Chromium every now and then...
     commit_id = "ee1d5124a2bfec578a1474b048cf934d92dcf7ba"
-    version = commit_id[:7]
+    version = "20190528"
 
     author = "Rene Meusel <rene.meusel@nexenio.com>"
     settings = "os", "compiler", "build_type", "arch"
