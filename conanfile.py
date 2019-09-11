@@ -12,6 +12,8 @@ class CrashpadConan(ConanFile):
     author = "Rene Meusel <rene.meusel@nexenio.com>"
     license = "Apache-2.0"
     homepage = "https://chromium.googlesource.com/crashpad/crashpad"
+    url = "https://github.com/bincrafters/conan-crashpad"
+    topics = ("conan", "crash-reporting", "logging", "minidump", "crash")
     settings = "os", "compiler", "build_type", "arch"
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
