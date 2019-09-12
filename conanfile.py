@@ -7,7 +7,7 @@ import json
 
 class CrashpadConan(ConanFile):
     name = "crashpad"
-    version = "20190528"
+    version = "20190718"
     description = "Crashpad is a crash-reporting system."
     author = "Rene Meusel <rene.meusel@nexenio.com>"
     license = "Apache-2.0"
@@ -18,7 +18,7 @@ class CrashpadConan(ConanFile):
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
 
-    _commit_id = "ee1d5124a2bfec578a1474b048cf934d92dcf7ba"
+    _commit_id = "2fb8f98d675ee177fb15731b08a02027d83615da"
     _source_dir = "crashpad"
     _build_name = "out/Conan"
     _build_dir = os.path.join(_source_dir, _build_name)
@@ -44,7 +44,7 @@ class CrashpadConan(ConanFile):
 
     def _make_spec(self):
         solutions = [{
-            "url": "%s@%s" % (self.homepage, self.commit_id),
+            "url": "%s@%s" % (self.homepage, self._commit_id),
             "managed": False,
             "name": "%s" % (self.name),
         }]
