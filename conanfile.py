@@ -44,7 +44,7 @@ class CrashpadConan(ConanFile):
 
     def _make_spec(self):
         solutions = [{
-            "url": "%s@%s" % (self.homepage, self.commit_id),
+            "url": "%s@%s" % (self.homepage, self._commit_id),
             "managed": False,
             "name": "%s" % (self.name),
         }]
