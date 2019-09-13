@@ -13,8 +13,10 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
         eval "$(pyenv init -)"
     fi
 
-    pyenv install 3.7.1
-    pyenv virtualenv 3.7.1 conan
+    # Google's depot_tools don't work well with new python versions. For now, we
+    # will use -- the soon to be deprecated -- python 2.7 as a workaround.
+    pyenv install 2.7.16
+    pyenv virtualenv 2.7.16 conan
     pyenv rehash
     pyenv activate conan
 fi
