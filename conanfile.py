@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from conans import ConanFile, tools
+from conans.errors import ConanInvalidConfiguration
 import os
 import json
+import re
 
 class CrashpadConan(ConanFile):
     name = "crashpad"
@@ -60,8 +62,29 @@ class CrashpadConan(ConanFile):
         tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
                     patch_file="patches/dynamic_crt.patch")
 
+    def _get_target_cpu(self):
+        arch = str(self.settings.arch)
+
+        if arch == "x86":
+            return "x86"
+        elif arch == "x86_64":
+            return "x64"
+
+        # best effort... please contribute, if you actually tested those platforms
+        elif arch.startswith("arm"):
+            match = re.match('^armv([0-9]+)', arch)
+            if int(match.group(1)) >= 8 and not "32" in arch:
+                return "arm64"
+            else:
+                return "arm"
+        elif arch.startswith("mips"):
+            return "mipsel"
+
+        raise ConanInvalidConfiguration("your architecture (%s) is not supported" % arch)
+
     def _setup_args_gn(self):
-        args = ["is_debug=%s" % ("true" if self.settings.build_type == "Debug" else "false")]
+        args = ["is_debug=%s" % ("true" if self.settings.build_type == "Debug" else "false"),
+                "target_cpu=\\\"%s\\\"" % self._get_target_cpu()]
 
         if self.settings.os == "Macos" and self.settings.get_safe("os.version"):
             args += [ "mac_deployment_target=\\\"%s\\\"" % self.settings.os.version ]
