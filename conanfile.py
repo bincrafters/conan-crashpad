@@ -133,7 +133,8 @@ class CrashpadConan(ConanFile):
             self.cpp_info.exelinkflags.append("-framework CoreFoundation")
             self.cpp_info.exelinkflags.append("-framework CoreGraphics")
             self.cpp_info.exelinkflags.append("-framework CoreText")
-            self.cpp_info.exelinkflags.append("-framework Security")
+            self.cpp_info.exelinkflags.append("-framework Foundation")
             self.cpp_info.exelinkflags.append("-framework IOKit")
+            self.cpp_info.exelinkflags.append("-framework Security")
             self.cpp_info.exelinkflags.append("-lbsm")
             self.cpp_info.sharedlinkflags = self.cpp_info.exelinkflags
