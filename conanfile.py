@@ -61,6 +61,8 @@ class CrashpadConan(ConanFile):
         self.run("gclient sync --no-history", run_environment=True)
         tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
                     patch_file="patches/dynamic_crt.patch")
+        tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
+                    patch_file="patches/fix_xcode11.patch")
 
     def _get_target_cpu(self):
         arch = str(self.settings.arch)
