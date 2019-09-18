@@ -61,6 +61,8 @@ class CrashpadConan(ConanFile):
         self.run("gclient sync --no-history", run_environment=True)
         tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
                     patch_file="patches/dynamic_crt.patch")
+        # Backport of an upstream patch. Once crashpad gets updated to a version containing mini_chromium
+        # later than Aug 29, 2019, this patch can be removed again.
         tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
                     patch_file="patches/fix_xcode11.patch")
 
