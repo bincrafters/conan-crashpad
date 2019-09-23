@@ -60,7 +60,7 @@ class CrashpadConan(ConanFile):
         self.run("gclient config --spec=\"%s\"" % self._make_spec(), run_environment=True)
         self.run("gclient sync --no-history", run_environment=True)
         tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
-                    patch_file="patches/dynamic_crt.patch")
+                    patch_file="patches/windows_adaptions.patch")
         # Backport of an upstream patch. Once crashpad gets updated to a version containing mini_chromium
         # later than Aug 29, 2019, this patch can be removed again.
         tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
@@ -92,6 +92,8 @@ class CrashpadConan(ConanFile):
 
         if self.settings.os == "Macos" and self.settings.get_safe("os.version"):
             args += [ "mac_deployment_target=\\\"%s\\\"" % self.settings.os.version ]
+        if self.settings.os == "Windows":
+            args += [ "linktime_optimization=false" ]
         if self.settings.os == "Windows" and self.settings.get_safe("compiler.runtime"):
             crt = str(self.settings.compiler.runtime)
             args += [ "dynamic_crt=%s" % ("true" if crt.startswith("MD") else "false") ]
