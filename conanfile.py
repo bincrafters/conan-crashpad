@@ -65,7 +65,7 @@ class CrashpadConan(ConanFile):
         if self.settings.os == "Windows":
             tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
                         patch_file="patches/windows_adaptions.patch")
-        if self.settings.os == "Macos":
+        elif self.settings.os == "Macos":
             # Backport of an upstream patch. Once crashpad gets updated to a version containing mini_chromium
             # later than Aug 29, 2019, this patch can be removed again.
             tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
