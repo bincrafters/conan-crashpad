@@ -18,7 +18,7 @@ class CrashpadConan(ConanFile):
     topics = ("conan", "crash-reporting", "logging", "minidump", "crash")
     settings = "os", "compiler", "build_type", "arch"
     options = {'linktime_optimization': [True, False]}
-    default_options = "linktime_optimization=True"
+    default_options = "linktime_optimization=False"
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
 
