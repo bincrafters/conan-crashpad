@@ -17,6 +17,8 @@ class CrashpadConan(ConanFile):
     url = "https://github.com/bincrafters/conan-crashpad"
     topics = ("conan", "crash-reporting", "logging", "minidump", "crash")
     settings = "os", "compiler", "build_type", "arch"
+    options = {'linktime_optimization': [True, False]}
+    default_options = "linktime_optimization=True"
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
 
@@ -93,7 +95,7 @@ class CrashpadConan(ConanFile):
         if self.settings.os == "Macos" and self.settings.get_safe("os.version"):
             args += [ "mac_deployment_target=\\\"%s\\\"" % self.settings.os.version ]
         if self.settings.os == "Windows":
-            args += [ "linktime_optimization=false" ]
+            args += [ "linktime_optimization=%s" % str(self.options.linktime_optimization).lower()]
         if self.settings.os == "Windows" and self.settings.get_safe("compiler.runtime"):
             crt = str(self.settings.compiler.runtime)
             args += [ "dynamic_crt=%s" % ("true" if crt.startswith("MD") else "false") ]
