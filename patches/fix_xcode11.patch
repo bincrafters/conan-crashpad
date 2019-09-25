@@ -66,7 +66,7 @@ diff --git a/base/mac/foundation_util.mm b/base/mac/foundation_util.mm
 index 2c09649..88d8a76 100644
 --- a/base/mac/foundation_util.mm
 +++ b/base/mac/foundation_util.mm
-@@ -45,23 +45,23 @@
+@@ -45,23 +45,23 @@ CFMutable##name##Ref NSToCFCast(NSMutable##name* ns_val) { \
    return cf_val; \
  }
  
@@ -107,7 +107,7 @@ index 2c09649..88d8a76 100644
  
  #undef CF_TO_NS_CAST_DEFN
  #undef CF_TO_NS_MUTABLE_CAST_DEFN
-@@ -85,26 +85,26 @@
+@@ -85,26 +85,26 @@ CFCastStrict<TypeCF##Ref>(const CFTypeRef& cf_val) { \
    return rv; \
  }
  
@@ -152,10 +152,10 @@ index 2c09649..88d8a76 100644
  #undef CF_CAST_DEFN
  
 diff --git a/build/BUILD.gn b/build/BUILD.gn
-index 1c5fb09..ca3bba3 100644
+index 1c5fb09..f95783c 100644
 --- a/build/BUILD.gn
 +++ b/build/BUILD.gn
-@@ -261,10 +261,6 @@ config("default") {
+@@ -245,10 +245,6 @@ config("default") {
      ]
    }
  
@@ -166,7 +166,7 @@ index 1c5fb09..ca3bba3 100644
    cflags += common_flags
    asmflags += common_flags
    ldflags += common_flags
-@@ -288,6 +284,13 @@ config("Wexit_time_destructors") {
+@@ -272,6 +268,12 @@ config("Wexit_time_destructors") {
    }
  }
  
@@ -174,7 +174,6 @@ index 1c5fb09..ca3bba3 100644
 +  if (mini_chromium_is_clang) {
 +    cflags = [ "-Wimplicit-fallthrough" ]
 +  }
-+
 +}
 +
  config("win_console") {
