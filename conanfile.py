@@ -11,7 +11,7 @@ class CrashpadConan(ConanFile):
     name = "crashpad"
     version = "20190718"
     description = "Crashpad is a crash-reporting system."
-    author = "Rene Meusel <rene.meusel@nexenio.com>"
+    author = "Bincrafters <bincrafters@gmail.com>"
     license = "Apache-2.0"
     homepage = "https://chromium.googlesource.com/crashpad/crashpad"
     url = "https://github.com/bincrafters/conan-crashpad"
