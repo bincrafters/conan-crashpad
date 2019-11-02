@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from conans import ConanFile, tools
 from conans.errors import ConanInvalidConfiguration
 import os
@@ -38,7 +35,7 @@ class CrashpadConan(ConanFile):
 
     def build_requirements(self):
         self.build_requires("depot_tools_installer/20190909@bincrafters/stable")
-        self.build_requires("ninja_installer/1.9.0@bincrafters/stable")
+        self.build_requires("ninja/1.9.0")
 
     def _mangle_spec_for_gclient(self, solutions):
         return json.dumps(solutions)          \
@@ -57,6 +54,7 @@ class CrashpadConan(ConanFile):
     def configure(self):
         # It's not a C project, but libcxx is hardcoded in the project
         del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     def source(self):
         self.run("gclient config --spec=\"%s\"" % self._make_spec(), run_environment=True)
