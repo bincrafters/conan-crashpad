@@ -9,7 +9,7 @@ import re
 
 class CrashpadConan(ConanFile):
     name = "crashpad"
-    version = "20190718"
+    version = "20190903"
     description = "Crashpad is a crash-reporting system."
     author = "Bincrafters <bincrafters@gmail.com>"
     license = "Apache-2.0"
@@ -22,7 +22,7 @@ class CrashpadConan(ConanFile):
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
 
-    _commit_id = "2fb8f98d675ee177fb15731b08a02027d83615da"
+    _commit_id = "e1e55e224627a5e74d524f6395a3d1617368a564"
     _source_dir = "crashpad"
     _build_name = "out/Conan"
     _build_dir = os.path.join(_source_dir, _build_name)
@@ -66,10 +66,8 @@ class CrashpadConan(ConanFile):
             tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
                         patch_file="patches/windows_adaptions.patch")
         elif self.settings.os == "Macos":
-            # Backport of an upstream patch. Once crashpad gets updated to a version containing mini_chromium
-            # later than Aug 29, 2019, this patch can be removed again.
             tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
-                        patch_file="patches/fix_xcode11.patch")
+                        patch_file="patches/fix_xcode_build.patch")
 
     def _get_target_cpu(self):
         arch = str(self.settings.arch)
