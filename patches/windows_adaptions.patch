@@ -1,5 +1,5 @@
 diff --git a/build/BUILD.gn b/build/BUILD.gn
-index f3fff89..7367975 100644
+index ca3bba3..664506c 100644
 --- a/build/BUILD.gn
 +++ b/build/BUILD.gn
 @@ -37,10 +37,23 @@ if (mini_chromium_is_mac) {
@@ -34,7 +34,7 @@ index f3fff89..7367975 100644
        "/O2",
        "/Ob2",  # Both explicit and auto inlining.
        "/Oy-",  # Disable omitting frame pointers, must be after /O2.
-@@ -71,10 +83,20 @@ config("release") {
+@@ -71,10 +83,19 @@ config("release") {
      ]
      ldflags = [
        "/OPT:ICF",
