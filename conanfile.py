@@ -6,7 +6,7 @@ import re
 
 class CrashpadConan(ConanFile):
     name = "crashpad"
-    version = "20191009"
+    version = "20191127"
     description = "Crashpad is a crash-reporting system."
     license = "Apache-2.0"
     homepage = "https://chromium.googlesource.com/crashpad/crashpad"
@@ -18,7 +18,7 @@ class CrashpadConan(ConanFile):
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
 
-    _commit_id = "fe52a01df1e9c8a5fe8b92872d4bf8689d0cd3b4"
+    _commit_id = "7fd5226a97ea9161382384b1fa6c6b329933ad27"
     _source_dir = "crashpad"
     _build_name = "out/Conan"
     _build_dir = os.path.join(_source_dir, _build_name)
