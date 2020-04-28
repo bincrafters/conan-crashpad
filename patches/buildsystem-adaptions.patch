@@ -1,0 +1,121 @@
+diff --git a/build/BUILD.gn b/build/BUILD.gn
+index ab63082..ce441c7 100644
+--- a/build/BUILD.gn
++++ b/build/BUILD.gn
+@@ -39,10 +39,30 @@ if (mini_chromium_is_mac) {
+     # win_sdk\bin\SetEnv.cmd inside this path will be used to configure the
+     # Windows toolchain.
+     win_toolchain_path = "<autodetect>"
++
++    # linktime optimization (enables compiler flag /GL and linker flag /LTCG)
++    linktime_optimization = true
++
++    # Link CRT dynamically or statically
++    dynamic_crt = false
+   }
+ }
+ 
++declare_args() {
++  custom_cc = getenv("CC")
++  custom_cxx = getenv("CXX")
++  custom_cflags = getenv("CFLAGS")
++  custom_cxxflags = getenv("CXXFLAGS")
++}
++
+ config("debug") {
++  if (mini_chromium_is_win) {
++    if (dynamic_crt) {
++      cflags = [ "/MDd" ]
++    } else {
++      cflags = [ "/MTd" ]
++    }
++  }
+ }
+ 
+ config("release") {
+@@ -64,7 +84,6 @@ config("release") {
+     }
+   } else if (mini_chromium_is_win) {
+     cflags = [
+-      "/GL",  # LTCG.
+       "/O2",
+       "/Ob2",  # Both explicit and auto inlining.
+       "/Oy-",  # Disable omitting frame pointers, must be after /O2.
+@@ -72,11 +91,20 @@ config("release") {
+       "/d2Zi+",  # Improve debugging of optimized code.
+     ]
+     ldflags = [
+-      "/OPT:ICF",
+       "/OPT:REF",
+-      "/LTCG",
+     ]
+-    arflags = [ "/LTCG" ]
++
++    if (linktime_optimization) {
++      cflags += [ "/GL" ] # LTCG
++      ldflags += [ "/LTCG" ]
++      arflags = [ "/LTCG" ]
++    }
++
++    if (dynamic_crt) {
++      cflags += [ "/MD" ]
++    } else {
++      cflags += [ "/MT" ]
++    }
+   }
+ }
+ 
+@@ -89,7 +117,6 @@ config("default") {
+     cflags = [
+       "-Wall",
+       "-Wendif-labels",
+-      "-Werror",
+       "-Wextra",
+       "-Wextra-semi",
+       "-Wno-missing-field-initializers",
+@@ -274,6 +301,15 @@ config("default") {
+   asmflags += common_flags
+   ldflags += common_flags
+ 
++  if (custom_cflags != "") {
++    cflags += [ custom_cflags ]
++  }
++
++  if (custom_cxxflags != "") {
++    cflags_cc += [ custom_cxxflags ]
++    cflags_objcc += [ custom_cxxflags ]
++  }
++
+   if (is_debug) {
+     configs = [ ":debug" ]
+   } else {
+@@ -327,6 +363,14 @@ toolchain("gcc_like_toolchain") {
+   lib_switch = "-l"
+   lib_dir_switch = "-L"
+ 
++  if (custom_cc != "") {
++    cc = custom_cc
++  }
++
++  if (custom_cxx != "") {
++    cxx = custom_cxx
++  }
++
+   if ((mini_chromium_is_linux || mini_chromium_is_fuchsia) && clang_path != "") {
+     cc = rebase_path(clang_path, root_build_dir) + "/bin/clang"
+     cxx = rebase_path(clang_path, root_build_dir) + "/bin/clang++"
+@@ -334,8 +378,12 @@ toolchain("gcc_like_toolchain") {
+     ar = rebase_path(clang_path, root_build_dir) + "/bin/llvm-ar"
+     ld = cxx
+   } else {
+-    cc = "clang"
+-    cxx = "clang++"
++    if (custom_cc == "") {
++      cc = "clang"
++    }
++    if (custom_cxx == "") {
++      cxx = "clang++"
++    }
+     asm = cxx
+     ld = cxx
+ 

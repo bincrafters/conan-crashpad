@@ -6,7 +6,7 @@ import re
 
 class CrashpadConan(ConanFile):
     name = "crashpad"
-    version = "20191009"
+    version = "20200111"
     description = "Crashpad is a crash-reporting system."
     license = "Apache-2.0"
     homepage = "https://chromium.googlesource.com/crashpad/crashpad"
@@ -18,7 +18,7 @@ class CrashpadConan(ConanFile):
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
 
-    _commit_id = "fe52a01df1e9c8a5fe8b92872d4bf8689d0cd3b4"
+    _commit_id = "4367e9df172c579ca232ef98d76b1a00d7333e8a"
     _source_dir = "crashpad"
     _build_name = "out/Conan"
     _build_dir = os.path.join(_source_dir, _build_name)
@@ -59,9 +59,9 @@ class CrashpadConan(ConanFile):
         self.run("gclient config --spec=\"%s\"" % self._make_spec(), run_environment=True)
         self.run("gclient sync --no-history", run_environment=True)
 
-        if self.settings.os == "Windows":
-            tools.patch(base_path=os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium"),
-                        patch_file="patches/windows_adaptions.patch")
+        patch_base = os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium");
+        tools.patch(base_path=patch_base,
+                    patch_file="patches/buildsystem-adaptions.patch")
 
     def _get_target_cpu(self):
         arch = str(self.settings.arch)
