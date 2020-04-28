@@ -33,7 +33,7 @@ class CrashpadConan(ConanFile):
         return os.path.join(self._crashpad_source_base(), "crashpad")
 
     def build_requirements(self):
-        self.build_requires("depot_tools_installer/20190909@bincrafters/stable")
+        self.build_requires("depot_tools_installer/20200515@bincrafters/stable")
         self.build_requires("ninja/1.9.0")
 
     def _mangle_spec_for_gclient(self, solutions):
