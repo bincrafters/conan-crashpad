@@ -23,15 +23,6 @@ class CrashpadConan(ConanFile):
     _build_name = "out/Conan"
     _build_dir = os.path.join(_source_dir, _build_name)
 
-    def _depot_tools(self):
-        return os.path.join(self.source_folder, "depot_tools")
-
-    def _crashpad_source_base(self):
-        return os.path.join(self.source_folder, "crashpad_source")
-
-    def _crashpad_source(self):
-        return os.path.join(self._crashpad_source_base(), "crashpad")
-
     def build_requirements(self):
         self.build_requires("depot_tools_installer/20200515@bincrafters/stable")
         self.build_requires("ninja/1.9.0")
