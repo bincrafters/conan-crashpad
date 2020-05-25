@@ -101,10 +101,26 @@ class CrashpadConan(ConanFile):
 
         return " ".join(args)
 
+    # This is a workaround for macOS builds where certain linker errors started
+    # occuring. Apparently the crashpad build system does not package a few *.o
+    # files properly. That leads to missing symbols when linking with 3rd party
+    # projects. More details here:
+    #
+    #  * https://groups.google.com/a/chromium.org/forum/#!topic/crashpad-dev/XVggc7kvlNs
+    def _export_mach_utils(self):
+        mactools = tools.XCRun(self.settings)
+        self.run("%s cr %s %s" %                                      \
+            (mactools.ar,                                             \
+             os.path.join(self._build_dir, "obj/util/libmachutil.a"), \
+             os.path.join(self._build_dir, "obj", self._build_name, "gen/util/mach/*.o")))
+
     def build(self):
         with tools.chdir(self._source_dir):
             self.run('gn gen %s --args="%s"' % (self._build_name, self._setup_args_gn()), run_environment=True)
             self.run("ninja -j%d -C %s" % (tools.cpu_count(), self._build_name), run_environment=True)
+
+        if self.settings.os == "Macos":
+            self._export_mach_utils()
 
     def _copy_lib(self, src_dir):
         self.copy("*.a", dst="lib",
