@@ -6,7 +6,7 @@ import re
 
 class CrashpadConan(ConanFile):
     name = "crashpad"
-    version = "20200111"
+    version = "20200324"
     description = "Crashpad is a crash-reporting system."
     license = "Apache-2.0"
     homepage = "https://chromium.googlesource.com/crashpad/crashpad"
@@ -18,7 +18,7 @@ class CrashpadConan(ConanFile):
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
 
-    _commit_id = "4367e9df172c579ca232ef98d76b1a00d7333e8a"
+    _commit_id = "311a5a2fdd5b6be8cee01b66991933397094204f"
     _source_dir = "crashpad"
     _build_name = "out/Conan"
     _build_dir = os.path.join(_source_dir, _build_name)
@@ -74,6 +74,11 @@ class CrashpadConan(ConanFile):
 
         raise ConanInvalidConfiguration("your architecture (%s) is not supported" % arch)
 
+    def _set_env_arg(self, args, envvar, gnvar):
+        val = os.getenv(envvar)
+        if val:
+            args += [ "%s=\\\"%s\\\"" % (gnvar, val) ]
+
     def _setup_args_gn(self):
         args = ["is_debug=%s" % ("true" if self.settings.build_type == "Debug" else "false"),
                 "target_cpu=\\\"%s\\\"" % self._get_target_cpu()]
@@ -85,6 +90,15 @@ class CrashpadConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.get_safe("compiler.runtime"):
             crt = str(self.settings.compiler.runtime)
             args += [ "dynamic_crt=%s" % ("true" if crt.startswith("MD") else "false") ]
+
+        self._set_env_arg(args, "CC",       "custom_cc")
+        self._set_env_arg(args, "CXX",      "custom_cxx")
+        self._set_env_arg(args, "CFLAGS",   "extra_cflags_c")
+        self._set_env_arg(args, "CFLAGS",   "extra_cflags_objc")
+        self._set_env_arg(args, "CXXFLAGS", "extra_cflags_cc")
+        self._set_env_arg(args, "CXXFLAGS", "extra_cflags_objcc")
+        self._set_env_arg(args, "LDFLAGS",  "extra_ldflags")
+
         return " ".join(args)
 
     def build(self):
