@@ -151,9 +151,10 @@ class CrashpadConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = [ "include/crashpad", "include/mini_chromium" ]
         self.cpp_info.libdirs = [ "lib" ]
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = ['client', 'util', 'base']
 
         if self.settings.os == "Macos":
+            self.cpp_info.libs.append('machutil')  # see _export_mach_utils
             self.cpp_info.exelinkflags.append("-framework CoreFoundation")
             self.cpp_info.exelinkflags.append("-framework CoreGraphics")
             self.cpp_info.exelinkflags.append("-framework CoreText")
