@@ -24,7 +24,7 @@ class CrashpadConan(ConanFile):
     _build_dir = os.path.join(_source_dir, _build_name)
 
     def build_requirements(self):
-        self.build_requires("depot_tools_installer/20200515@bincrafters/stable")
+        self.build_requires("depot_tools/cci.20201009")
         self.build_requires("ninja/1.10.2")
 
     def _mangle_spec_for_gclient(self, solutions):
