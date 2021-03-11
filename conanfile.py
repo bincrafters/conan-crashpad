@@ -17,6 +17,7 @@ class CrashpadConan(ConanFile):
     default_options = {"linktime_optimization": False}
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
+    generators = "compiler_args"
 
     _commit_id = "c7d1d2a1dd7cf2442cbb8aa8da7348fa01d54182"
     _source_dir = "crashpad"
@@ -42,9 +43,8 @@ class CrashpadConan(ConanFile):
         return "solutions=%s" % self._mangle_spec_for_gclient(solutions)
 
     def configure(self):
-        # It's not a C project, but libcxx is hardcoded in the project
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        if self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
+            raise ConanInvalidConfiguration("Only libstdc++11 is supported in Linux")
 
     def source(self):
         self.run("gclient config --spec=\"%s\"" % self._make_spec(), run_environment=True)
@@ -98,6 +98,8 @@ class CrashpadConan(ConanFile):
         self._set_env_arg(args, "CXXFLAGS", "extra_cflags_cc")
         self._set_env_arg(args, "CXXFLAGS", "extra_cflags_objcc")
         self._set_env_arg(args, "LDFLAGS",  "extra_ldflags")
+
+        args += [ "custom_conan_compiler_args_file=\\\"@%s\\\"" % os.path.join(self.install_folder, "conanbuildinfo.args") ]
 
         if self.settings.compiler == "gcc":
             args += [ "custom_cxx_is_gcc=true" ]
