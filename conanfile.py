@@ -99,6 +99,11 @@ class CrashpadConan(ConanFile):
         self._set_env_arg(args, "CXXFLAGS", "extra_cflags_objcc")
         self._set_env_arg(args, "LDFLAGS",  "extra_ldflags")
 
+        if self.settings.compiler == "gcc":
+            args += [ "custom_cxx_is_gcc=true" ]
+        else:
+            args += [ "custom_cxx_is_gcc=false" ]
+
         return " ".join(args)
 
     # This is a workaround for macOS builds where certain linker errors started
