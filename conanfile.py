@@ -42,10 +42,6 @@ class CrashpadConan(ConanFile):
         }]
         return "solutions=%s" % self._mangle_spec_for_gclient(solutions)
 
-    def configure(self):
-        if self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration("Only libstdc++11 is supported in Linux")
-
     def source(self):
         self.run("gclient config --spec=\"%s\"" % self._make_spec(), run_environment=True)
         self.run("gclient sync --no-history", run_environment=True)
@@ -122,9 +118,14 @@ class CrashpadConan(ConanFile):
              os.path.join(self._build_dir, "obj", self._build_name, "gen/util/mach/*.o")))
 
     def build(self):
+
+        targets = "crashpad_handler"
+        if self._memfd_create_is_missing():
+            targets += " compat"
+
         with tools.chdir(self._source_dir):
             self.run('gn gen %s --args="%s"' % (self._build_name, self._setup_args_gn()), run_environment=True)
-            self.run("ninja -j%d -C %s" % (tools.cpu_count(), self._build_name), run_environment=True)
+            self.run("ninja -j%d -C %s %s" % (tools.cpu_count(), self._build_name, targets), run_environment=True)
 
         if self.settings.os == "Macos":
             self._export_mach_utils()
@@ -143,6 +144,10 @@ class CrashpadConan(ConanFile):
         self.copy(src_bin, src=self._build_dir, dst="bin")
         self.copy("%s.exe" % src_bin, src=self._build_dir, dst="bin")
 
+    def _memfd_create_is_missing(self):
+        return self.settings.compiler == "gcc" and str(self.settings.compiler.version) <= "7" and self.settings.compiler.libcxx == "libstdc++"
+            
+
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_dir,
                              ignore_case=True, keep_path=False)
@@ -155,10 +160,16 @@ class CrashpadConan(ConanFile):
         self._copy_lib("obj/third_party/mini_chromium")
         self._copy_bin("crashpad_handler")
 
+        if self._memfd_create_is_missing():
+            self._copy_lib("obj/compat")
+
     def package_info(self):
         self.cpp_info.includedirs = [ "include/crashpad", "include/mini_chromium" ]
         self.cpp_info.libdirs = [ "lib" ]
         self.cpp_info.libs = ['client', 'util', 'base']
+
+        if self._memfd_create_is_missing():
+            self.cpp_info.libs += ['compat', 'dl', 'pthread']
 
         if self.settings.os == "Macos":
             self.cpp_info.libs.append('machutil')  # see _export_mach_utils
