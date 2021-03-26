@@ -1,5 +1,6 @@
 from conans import ConanFile, tools
 from conans.errors import ConanInvalidConfiguration
+from io import StringIO
 import os
 import json
 import re
@@ -120,7 +121,7 @@ class CrashpadConan(ConanFile):
     def build(self):
 
         targets = "crashpad_handler"
-        if self._memfd_create_is_missing():
+        if self._glibc_version_pre_2_27():
             targets += " compat"
 
         with tools.chdir(self._source_dir):
@@ -144,9 +145,13 @@ class CrashpadConan(ConanFile):
         self.copy(src_bin, src=self._build_dir, dst="bin")
         self.copy("%s.exe" % src_bin, src=self._build_dir, dst="bin")
 
-    def _memfd_create_is_missing(self):
-        return self.settings.compiler == "gcc" and str(self.settings.compiler.version) <= "7" and self.settings.compiler.libcxx == "libstdc++"
-            
+    def _glibc_version_pre_2_27(self):
+        if self.settings.os != "Linux":
+            return False
+
+        buf = StringIO()
+        self.run('ldd --version | head -1 | grep -o -E "[0-9]\.[0-9]+" | tail -1', output=buf)
+        return buf.getvalue().rstrip() < "2.27"
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_dir,
@@ -160,7 +165,7 @@ class CrashpadConan(ConanFile):
         self._copy_lib("obj/third_party/mini_chromium")
         self._copy_bin("crashpad_handler")
 
-        if self._memfd_create_is_missing():
+        if self._glibc_version_pre_2_27():
             self._copy_lib("obj/compat")
 
     def package_info(self):
@@ -168,7 +173,7 @@ class CrashpadConan(ConanFile):
         self.cpp_info.libdirs = [ "lib" ]
         self.cpp_info.libs = ['client', 'util', 'base']
 
-        if self._memfd_create_is_missing():
+        if self._glibc_version_pre_2_27():
             self.cpp_info.libs += ['compat', 'dl', 'pthread']
 
         if self.settings.os == "Macos":
