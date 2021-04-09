@@ -15,8 +15,12 @@ class CrashpadConan(ConanFile):
     url = "https://github.com/bincrafters/conan-crashpad"
     topics = ("conan", "crash-reporting", "logging", "minidump", "crash")
     settings = "os", "compiler", "build_type", "arch"
-    options = {'linktime_optimization': [True, False]}
-    default_options = {"linktime_optimization": False}
+    options = {
+        "linktime_optimization": [True, False],
+        "force_embedded_zlib": [True, False]}
+    default_options = {
+        "linktime_optimization": False,
+        "force_embedded_zlib": False}
     exports = [ "patches/*", "LICENSE.md" ]
     short_paths = True
     generators = "compiler_args"
@@ -52,9 +56,14 @@ class CrashpadConan(ConanFile):
         self.run("gclient config --spec=\"%s\"" % self._make_spec(), run_environment=True)
         self.run("gclient sync --no-history", run_environment=True)
 
-        patch_base = os.path.join(self._source_dir, "third_party/mini_chromium/mini_chromium");
+        patch_base = os.path.join(
+            self._source_dir, "third_party/mini_chromium/mini_chromium")
         tools.patch(base_path=patch_base,
                     patch_file="patches/buildsystem-adaptions.patch")
+
+        if self.options.force_embedded_zlib:
+            tools.patch(base_path=patch_base,
+                        patch_file="patches/force-embedded-zlib.patch")
 
     def _get_target_cpu(self):
         arch = str(self.settings.arch)
