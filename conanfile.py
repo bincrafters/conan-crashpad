@@ -1,5 +1,6 @@
 from conans import ConanFile, tools
 from conans.errors import ConanInvalidConfiguration
+from conans.model.version import Version
 from io import StringIO
 import os
 import json
@@ -42,6 +43,10 @@ class CrashpadConan(ConanFile):
             "name": "%s" % (self.name),
         }]
         return "solutions=%s" % self._mangle_spec_for_gclient(solutions)
+
+    def configure(self):
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version.value) < "5.0":
+            raise ConanInvalidConfiguration("gcc >= 5 is required")
 
     def source(self):
         self.run("gclient config --spec=\"%s\"" % self._make_spec(), run_environment=True)
