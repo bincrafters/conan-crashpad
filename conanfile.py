@@ -29,6 +29,7 @@ class CrashpadConan(ConanFile):
     _source_dir = "crashpad"
     _build_name = "out/Conan"
     _build_dir = os.path.join(_source_dir, _build_name)
+    _patch_base = os.path.join(_source_dir, "third_party/mini_chromium/mini_chromium")
 
     def build_requirements(self):
         self.build_requires("depot_tools_installer/20200515@bincrafters/stable")
@@ -56,14 +57,8 @@ class CrashpadConan(ConanFile):
         self.run("gclient config --spec=\"%s\"" % self._make_spec(), run_environment=True)
         self.run("gclient sync --no-history", run_environment=True)
 
-        patch_base = os.path.join(
-            self._source_dir, "third_party/mini_chromium/mini_chromium")
-        tools.patch(base_path=patch_base,
+        tools.patch(base_path=self._patch_base,
                     patch_file="patches/buildsystem-adaptions.patch")
-
-        if self.options.force_embedded_zlib:
-            tools.patch(base_path=patch_base,
-                        patch_file="patches/force-embedded-zlib.patch")
 
     def _get_target_cpu(self):
         arch = str(self.settings.arch)
@@ -133,6 +128,10 @@ class CrashpadConan(ConanFile):
              os.path.join(self._build_dir, "obj", self._build_name, "gen/util/mach/*.o")))
 
     def build(self):
+
+        if self.options.force_embedded_zlib:
+            tools.patch(base_path=self._patch_base,
+                        patch_file="patches/force-embedded-zlib.patch")
 
         targets = "crashpad_handler"
         if self._glibc_version_pre_2_27():
