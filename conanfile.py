@@ -1,6 +1,6 @@
 from conans import ConanFile, tools
 from conans.errors import ConanInvalidConfiguration
-from conans.model.version import Version
+from conans.tools import Version
 from io import StringIO
 import os
 import json
